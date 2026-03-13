@@ -1,5 +1,18 @@
 
 # Use the .funcignore file to exclude files which should not be
-# tracked in the image build. To instruct the system not to track
+# tracked in the image build. To the system not to track
 # files in the image build, add the regex pattern or file information
 # to this file.
+.venv/
+.venv
+.pytest_cache/
+.pytest_cache
+__pycache__/
+__pycache__
+*.pyc
+.git/
+.git
+docs/
+docs
+tests/
+tests

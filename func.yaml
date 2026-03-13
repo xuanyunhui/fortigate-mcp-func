@@ -3,4 +3,13 @@
 specVersion: 0.36.0
 name: fortigate-mcp-func
 runtime: python
+registry: image-registry.openshift-image-registry.svc:5000/mcp-servers
 created: 2026-03-13T10:48:55.571512138Z
+build:
+  builder: host
+run:
+  envs:
+  - name: FORTIGATE_DEVICE_FW01_HOST
+    value: '{{ secret:fortigate-config:FORTIGATE_DEVICE_FW01_HOST }}'
+  - name: FORTIGATE_DEVICE_FW01_API_TOKEN
+    value: '{{ secret:fortigate-config:FORTIGATE_DEVICE_FW01_API_TOKEN }}'
