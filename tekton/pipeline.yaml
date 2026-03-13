@@ -1,0 +1,55 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: fortigate-mcp-func-deploy
+spec:
+  params:
+    - name: repo-url
+      type: string
+      description: Git repository URL
+    - name: revision
+      type: string
+      default: main
+      description: Git revision (branch, tag, or commit)
+    - name: image
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/mcp-servers/fortigate-mcp-func
+      description: Target container image reference
+  workspaces:
+    - name: source
+  tasks:
+    - name: fetch-source
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.revision)
+      workspaces:
+        - name: output
+          workspace: source
+
+    - name: build-and-push
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      runAfter:
+        - fetch-source
+      params:
+        - name: IMAGE
+          value: $(params.image):$(params.revision)
+      workspaces:
+        - name: source
+          workspace: source
+
+    - name: deploy
+      taskRef:
+        kind: Task
+        name: deploy-ksvc
+      runAfter:
+        - build-and-push
+      params:
+        - name: image
+          value: $(params.image):$(params.revision)
