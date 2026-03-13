@@ -7,7 +7,7 @@ spec:
     name: fortigate-mcp-func-deploy
   params:
     - name: repo-url
-      value: https://github.com/YOUR_USERNAME/fortigate-mcp-func.git
+      value: https://github.com/xuanyunhui/fortigate-mcp-func.git
     - name: revision
       value: main
     - name: image
