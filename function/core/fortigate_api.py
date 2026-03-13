@@ -61,8 +61,6 @@ class FortiGateAPI:
             "url": url,
             "headers": self.headers,
             "params": request_params,
-            "verify": self.verify_ssl,
-            "timeout": self.timeout,
         }
         if data is not None:
             kwargs["json"] = data
@@ -70,7 +68,10 @@ class FortiGateAPI:
             kwargs["auth"] = self._basic_auth
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(
+                verify=self.verify_ssl,
+                timeout=self.timeout,
+            ) as client:
                 response = await client.request(method, **kwargs)
         except httpx.ConnectError as exc:
             raise FortiGateAPIError(f"Network error: {exc}") from exc

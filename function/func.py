@@ -66,7 +66,7 @@ class Function:
             await self._send_json(send, 200, response)
 
     def start(self, cfg):
-        device_configs = load_devices_from_env()
+        device_configs = load_devices_from_env(cfg)
         manager = FortiGateManager(device_configs)
 
         registry = ToolRegistry()

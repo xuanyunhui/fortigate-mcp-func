@@ -1,7 +1,7 @@
 """Load FortiGate device configuration from environment variables."""
 import os
 import re
-from typing import Dict, Any
+from typing import Dict, Any, Mapping, Optional
 
 _PREFIX = "FORTIGATE_DEVICE_"
 _FIELD_RE = re.compile(rf"^{_PREFIX}([^_]+)_(.+)$")
@@ -17,9 +17,13 @@ _DEFAULTS: Dict[str, Any] = {
 }
 
 
-def load_devices_from_env() -> Dict[str, Dict[str, Any]]:
+def load_devices_from_env(
+    environ: Optional[Mapping[str, str]] = None,
+) -> Dict[str, Dict[str, Any]]:
+    if environ is None:
+        environ = os.environ
     raw: Dict[str, Dict[str, str]] = {}
-    for key, value in os.environ.items():
+    for key, value in environ.items():
         m = _FIELD_RE.match(key)
         if not m:
             continue
