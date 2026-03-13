@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fortigate-mcp-func-deploy-
+spec:
+  pipelineRef:
+    name: fortigate-mcp-func-deploy
+  params:
+    - name: repo-url
+      value: https://github.com/YOUR_USERNAME/fortigate-mcp-func.git
+    - name: revision
+      value: main
+    - name: image
+      value: image-registry.openshift-image-registry.svc:5000/mcp-servers/fortigate-mcp-func
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
