@@ -54,6 +54,40 @@ FORTIGATE_DEVICE_{ID}_VERIFY_SSL=false  # optional, default false
 FORTIGATE_DEVICE_{ID}_TIMEOUT=30        # optional, default 30
 ```
 
+## Deployment
+
+### Tekton CD Pipeline
+
+开发机是 aarch64，OpenShift 集群是 x86_64，不能用 `kn func deploy`（会构建错误架构的镜像）。使用 Tekton Pipeline 在集群上原生构建。
+
+```bash
+# 部署 Tekton 资源
+oc apply -f tekton/deploy-ksvc-task.yaml
+oc apply -f tekton/pipeline.yaml
+
+# 触发 Pipeline
+oc create -f tekton/pipelinerun.yaml
+```
+
+Pipeline 3 个阶段: git-clone → buildah build+push → oc apply Knative Service
+
+**Service URL:** `https://fortigate-mcp-func-mcp-servers.apps.k7xm2q9n.okd.ink`
+
+### OpenShift 集群注意事项
+
+- **Tekton v0.39+** 已移除 ClusterTask，必须用 Cluster Resolver 引用 `openshift-pipelines` namespace 中的 Task（git-clone、buildah）
+- **git-clone Task 参数名是大写**：`URL`、`REVISION`（不是小写）
+- **registry.redhat.io 需要认证**：pipeline SA 默认没有 Red Hat Registry 凭证，需要通过 buildah 的 `dockerconfig` workspace 传入
+- **推送到内部 registry 也需要认证**：需要合并内部 registry 和 Red Hat Registry 的凭证到一个 secret（`buildah-registry-auth`），通过 dockerconfig workspace 同时解决 pull 和 push 认证
+- **pyproject.toml 引用了 README.md**：Dockerfile 中 COPY 必须包含 README.md，否则 hatchling 构建失败
+- **KnativeServing 实例**：安装 Serverless Operator 后还需要手动创建 KnativeServing CR
+
+### Secrets
+
+- `fortigate-config` — FortiGate 设备凭证（envFrom 注入到 Knative Service）
+- `buildah-registry-auth` — 合并的 registry 凭证（registry.redhat.io + 内部 registry），挂载为 buildah dockerconfig workspace
+- `redhat-registry-auth` — Red Hat Registry 凭证（从 arc-runners namespace 复制）
+
 ## Testing
 
 Tests use `pytest-asyncio` in **strict** mode (`asyncio_mode = "strict"`). Test functions must be decorated with `@pytest.mark.asyncio`. All FortiGate API calls are mocked — no real devices needed. 89 tests across 11 test files.
