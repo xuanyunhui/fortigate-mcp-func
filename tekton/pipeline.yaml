@@ -20,8 +20,14 @@ spec:
   tasks:
     - name: fetch-source
       taskRef:
-        kind: ClusterTask
-        name: git-clone
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
       params:
         - name: url
           value: $(params.repo-url)
@@ -33,8 +39,14 @@ spec:
 
     - name: build-and-push
       taskRef:
-        kind: ClusterTask
-        name: buildah
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
       runAfter:
         - fetch-source
       params:
@@ -46,8 +58,14 @@ spec:
 
     - name: deploy
       taskRef:
-        kind: Task
-        name: deploy-ksvc
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: deploy-ksvc
+          - name: namespace
+            value: mcp-servers
       runAfter:
         - build-and-push
       params:
