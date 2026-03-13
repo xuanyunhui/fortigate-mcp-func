@@ -1,0 +1,6 @@
+# $schema: https://raw.githubusercontent.com/knative/func/3f9df749/schema/func_yaml-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/knative/func/3f9df749/schema/func_yaml-schema.json
+specVersion: 0.36.0
+name: fortigate-mcp-func
+runtime: python
+created: 2026-03-13T10:48:55.571512138Z
