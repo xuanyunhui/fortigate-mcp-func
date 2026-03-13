@@ -13,6 +13,9 @@ spec:
     - name: image
       value: image-registry.openshift-image-registry.svc:5000/mcp-servers/fortigate-mcp-func
   workspaces:
+    - name: dockerconfig
+      secret:
+        secretName: redhat-registry-auth
     - name: source
       volumeClaimTemplate:
         spec:

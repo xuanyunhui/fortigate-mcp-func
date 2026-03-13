@@ -17,6 +17,8 @@ spec:
       description: Target container image reference
   workspaces:
     - name: source
+    - name: dockerconfig
+      optional: true
   tasks:
     - name: fetch-source
       taskRef:
@@ -29,9 +31,9 @@ spec:
           - name: namespace
             value: openshift-pipelines
       params:
-        - name: url
+        - name: URL
           value: $(params.repo-url)
-        - name: revision
+        - name: REVISION
           value: $(params.revision)
       workspaces:
         - name: output
@@ -55,6 +57,8 @@ spec:
       workspaces:
         - name: source
           workspace: source
+        - name: dockerconfig
+          workspace: dockerconfig
 
     - name: deploy
       taskRef:
