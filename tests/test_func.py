@@ -1,38 +1,148 @@
-"""
-An example set of unit tests which confirm that the main handler (the
-callable function) returns 200 OK for a simple HTTP GET.
-"""
+"""Tests for Knative Function ASGI entry point."""
+import json
 import pytest
+from unittest.mock import patch, MagicMock, AsyncMock
 from function import new
 
 
-@pytest.mark.asyncio
-async def test_function_handle():
-    f = new()  # Instantiate Function to Test
+class TestFunctionLifecycle:
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    def test_start_initializes_from_env(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {"fw01": {"host": "1.2.3.4", "api_token": "tok", "port": 443, "vdom": "root", "verify_ssl": False, "timeout": 30, "username": None, "password": None}}
+        f = new()
+        f.start({})
+        mock_loader.assert_called_once()
+        mock_mgr_cls.assert_called_once()
 
-    sent_ok = False
-    sent_headers = False
-    sent_body = False
+    def test_alive(self):
+        f = new()
+        alive, msg = f.alive()
+        assert alive is True
 
-    # Mock Send
-    async def send(message):
-        nonlocal sent_ok
-        nonlocal sent_headers
-        nonlocal sent_body
+    def test_ready_before_start(self):
+        f = new()
+        ready, msg = f.ready()
+        assert ready is False
 
-        if message.get('status') == 200:
-            sent_ok = True
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    def test_ready_after_start(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
+        ready, msg = f.ready()
+        assert ready is True
 
-        if message.get('type') == 'http.response.start':
-            sent_headers = True
 
-        if message.get('type') == 'http.response.body':
-            sent_body = True
+class TestFunctionHandle:
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    @pytest.mark.asyncio
+    async def test_post_json_rpc_ping(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
 
-    # Invoke the Function
-    await f.handle({}, {}, send)
+        body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "ping"}).encode()
+        scope = {"type": "http", "method": "POST", "path": "/"}
+        received = False
 
-    # Assert send was called
-    assert sent_ok, "Function did not send a 200 OK"
-    assert sent_headers, "Function did not send headers"
-    assert sent_body, "Function did not send a body"
+        async def receive():
+            nonlocal received
+            if not received:
+                received = True
+                return {"type": "http.request", "body": body}
+            return {"type": "http.disconnect"}
+
+        responses = []
+        async def send(msg):
+            responses.append(msg)
+
+        await f.handle(scope, receive, send)
+
+        assert len(responses) == 2
+        assert responses[0]["status"] == 200
+        resp_body = json.loads(responses[1]["body"])
+        assert resp_body["result"] == {}
+
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    @pytest.mark.asyncio
+    async def test_get_returns_405(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
+
+        scope = {"type": "http", "method": "GET", "path": "/"}
+        async def receive(): return {"type": "http.disconnect"}
+        responses = []
+        async def send(msg): responses.append(msg)
+
+        await f.handle(scope, receive, send)
+        assert responses[0]["status"] == 405
+
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    @pytest.mark.asyncio
+    async def test_delete_returns_202(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
+
+        scope = {"type": "http", "method": "DELETE", "path": "/"}
+        async def receive(): return {"type": "http.disconnect"}
+        responses = []
+        async def send(msg): responses.append(msg)
+
+        await f.handle(scope, receive, send)
+        assert responses[0]["status"] == 202
+
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    @pytest.mark.asyncio
+    async def test_notification_returns_202(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
+
+        body = json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}).encode()
+        scope = {"type": "http", "method": "POST", "path": "/"}
+        received = False
+        async def receive():
+            nonlocal received
+            if not received:
+                received = True
+                return {"type": "http.request", "body": body}
+            return {"type": "http.disconnect"}
+
+        responses = []
+        async def send(msg): responses.append(msg)
+
+        await f.handle(scope, receive, send)
+        assert responses[0]["status"] == 202
+
+    @patch("function.func.load_devices_from_env")
+    @patch("function.func.FortiGateManager")
+    @pytest.mark.asyncio
+    async def test_invalid_json_returns_parse_error(self, mock_mgr_cls, mock_loader):
+        mock_loader.return_value = {}
+        f = new()
+        f.start({})
+
+        body = b"not json"
+        scope = {"type": "http", "method": "POST", "path": "/"}
+        received = False
+        async def receive():
+            nonlocal received
+            if not received:
+                received = True
+                return {"type": "http.request", "body": body}
+            return {"type": "http.disconnect"}
+
+        responses = []
+        async def send(msg): responses.append(msg)
+
+        await f.handle(scope, receive, send)
+        resp_body = json.loads(responses[1]["body"])
+        assert resp_body["error"]["code"] == -32700
