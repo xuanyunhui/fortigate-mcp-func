@@ -26,14 +26,18 @@ class Function:
         self._ready = False
 
     async def handle(self, scope, receive, send):
+        if self._handler is None:
+            await self._send_plain(send, 503, b"Service Unavailable")
+            return
+
         method = scope.get("method", "GET")
 
         if method == "GET":
-            await self._send(send, 405, b"Method Not Allowed")
+            await self._send_plain(send, 405, b"Method Not Allowed")
             return
 
         if method == "DELETE":
-            await self._send(send, 202, b"")
+            await self._send_plain(send, 202, b"")
             return
 
         # POST — read body
@@ -57,7 +61,7 @@ class Function:
 
         if response is None:
             # Notification — no body
-            await self._send(send, 202, b"")
+            await self._send_plain(send, 202, b"")
         else:
             await self._send_json(send, 200, response)
 
@@ -88,11 +92,11 @@ class Function:
         return True, "Ready"
 
     @staticmethod
-    async def _send(send, status, body):
+    async def _send_plain(send, status, body):
         await send({
             "type": "http.response.start",
             "status": status,
-            "headers": [[b"content-type", b"application/json"]],
+            "headers": [[b"content-type", b"text/plain"]],
         })
         await send({"type": "http.response.body", "body": body})
 

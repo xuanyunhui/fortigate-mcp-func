@@ -1,7 +1,7 @@
 """Tests for Knative Function ASGI entry point."""
 import json
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch
 from function import new
 
 
@@ -36,6 +36,17 @@ class TestFunctionLifecycle:
 
 
 class TestFunctionHandle:
+    @pytest.mark.asyncio
+    async def test_handle_before_start_returns_503(self):
+        f = new()
+        scope = {"type": "http", "method": "POST", "path": "/"}
+        async def receive(): return {"type": "http.disconnect"}
+        responses = []
+        async def send(msg): responses.append(msg)
+
+        await f.handle(scope, receive, send)
+        assert responses[0]["status"] == 503
+
     @patch("function.func.load_devices_from_env")
     @patch("function.func.FortiGateManager")
     @pytest.mark.asyncio
