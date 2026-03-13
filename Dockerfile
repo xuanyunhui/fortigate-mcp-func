@@ -1,4 +1,4 @@
-FROM registry.redhat.io/ubi10/python-312-minimal:10.1
+FROM python:3.12-slim
 
 WORKDIR /opt/app-root/src
 
