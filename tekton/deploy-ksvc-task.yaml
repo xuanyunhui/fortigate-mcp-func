@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: deploy-ksvc
+spec:
+  params:
+    - name: image
+      type: string
+      description: Container image reference for the Knative Service
+    - name: service-name
+      type: string
+      default: fortigate-mcp-func
+      description: Name of the Knative Service
+    - name: secret-name
+      type: string
+      default: fortigate-config
+      description: Secret to inject as environment variables
+  steps:
+    - name: deploy
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        cat <<EOF | oc apply -f -
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        metadata:
+          name: $(params.service-name)
+        spec:
+          template:
+            spec:
+              containers:
+              - image: $(params.image)
+                envFrom:
+                - secretRef:
+                    name: $(params.secret-name)
+                ports:
+                - containerPort: 8080
+        EOF
+        echo "Waiting for Knative Service to become ready..."
+        oc wait ksvc/$(params.service-name) --for=condition=Ready --timeout=120s
+        URL=$(oc get ksvc $(params.service-name) -o jsonpath='{.status.url}')
+        echo "Deployed: $URL"
