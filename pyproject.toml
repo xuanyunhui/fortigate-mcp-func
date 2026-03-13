@@ -1,6 +1,6 @@
 [project]
-name = "function"
-description = ""
+name = "fortigate-mcp-func"
+description = "FortiGate MCP Knative Function"
 version = "0.1.0"
 requires-python = ">=3.9"
 readme = "README.md"
