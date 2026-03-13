@@ -226,21 +226,23 @@ def register_device_tools(registry, manager) -> None:
     async def get_server_info(args: Dict[str, Any]):
         try:
             device_count = len(manager.list_devices())
-            tool_count = 8  # device tools registered by this function
+            tool_count = len(registry.list_all())
             info_text = (
                 "FortiGate MCP Function\n"
                 "\n"
                 "Server Information\n"
-                f"  Version: 1.0.0\n"
+                f"  Version: 0.1.0\n"
                 f"  Runtime: Knative Function (ASGI)\n"
                 f"  Registered Devices: {device_count}\n"
-                f"  Available Tools: {tool_count} device/system tools\n"
+                f"  Available Tools: {tool_count}\n"
                 "\n"
                 "Capabilities\n"
                 "  - Device management (list, add, remove)\n"
                 "  - Device status and health monitoring\n"
-                "  - VDOM discovery\n"
-                "  - Connection testing\n"
+                "  - Firewall policy management\n"
+                "  - Network object management\n"
+                "  - Routing configuration\n"
+                "  - Virtual IP management\n"
             )
             return [{"type": "text", "text": info_text}]
         except Exception as e:

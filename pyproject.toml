@@ -7,8 +7,12 @@ readme = "README.md"
 license = "MIT"
 dependencies = [
   "httpx",
+]
+
+[project.optional-dependencies]
+test = [
   "pytest",
-  "pytest-asyncio"
+  "pytest-asyncio",
 ]
 authors = [
   { name="Your Name", email="you@example.com"},
