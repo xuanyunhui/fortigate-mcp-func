@@ -15,7 +15,7 @@ spec:
   workspaces:
     - name: dockerconfig
       secret:
-        secretName: redhat-registry-auth
+        secretName: buildah-registry-auth
     - name: source
       volumeClaimTemplate:
         spec:
