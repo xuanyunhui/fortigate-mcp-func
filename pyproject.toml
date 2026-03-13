@@ -1,10 +1,13 @@
 [project]
-name = "fortigate-mcp-func"
+name = "function"
 description = "FortiGate MCP Knative Function"
 version = "0.1.0"
 requires-python = ">=3.9"
 readme = "README.md"
 license = "MIT"
+authors = [
+  { name="Your Name", email="you@example.com"},
+]
 dependencies = [
   "httpx",
 ]
@@ -13,9 +16,6 @@ dependencies = [
 test = [
   "pytest",
   "pytest-asyncio",
-]
-authors = [
-  { name="Your Name", email="you@example.com"},
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -28,4 +28,3 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
-
