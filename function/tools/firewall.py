@@ -107,7 +107,7 @@ def register_firewall_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_firewall_policies(vdom=vdom)
+            data = await api.get_firewall_policies(vdom=vdom)
             return FortiGateFormatters.format_firewall_policies(data)
         except Exception as e:
             return FortiGateFormatters.format_error_response(
@@ -134,7 +134,7 @@ def register_firewall_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            api.create_firewall_policy(policy_data, vdom=vdom)
+            await api.create_firewall_policy(policy_data, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "create firewall policy", device_id, True, "Policy created successfully"
             )
@@ -165,7 +165,7 @@ def register_firewall_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            api.update_firewall_policy(policy_id, policy_data, vdom=vdom)
+            await api.update_firewall_policy(policy_id, policy_data, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "update firewall policy", device_id, True,
                 f"Policy {policy_id} updated successfully"
@@ -197,7 +197,7 @@ def register_firewall_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            api.delete_firewall_policy(policy_id, vdom=vdom)
+            await api.delete_firewall_policy(policy_id, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "delete firewall policy", device_id, True,
                 f"Policy {policy_id} deleted successfully"
@@ -228,13 +228,13 @@ def register_firewall_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            policy_data = api.get_firewall_policy_detail(policy_id, vdom=vdom)
+            policy_data = await api.get_firewall_policy_detail(policy_id, vdom=vdom)
             try:
-                address_objects = api.get_address_objects(vdom=vdom)
+                address_objects = await api.get_address_objects(vdom=vdom)
             except Exception:
                 address_objects = None
             try:
-                service_objects = api.get_service_objects(vdom=vdom)
+                service_objects = await api.get_service_objects(vdom=vdom)
             except Exception:
                 service_objects = None
             return FortiGateFormatters.format_firewall_policy_detail(

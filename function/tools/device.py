@@ -52,7 +52,7 @@ def register_device_tools(registry, manager) -> None:
         device_id = args.get("device_id", "")
         try:
             api = manager.get_device(device_id)
-            status_data = api.get_system_status()
+            status_data = await api.get_system_status()
             return FortiGateFormatters.format_device_status(device_id, status_data)
         except Exception as e:
             return FortiGateFormatters.format_error_response("get_device_status", device_id, str(e))
@@ -77,7 +77,7 @@ def register_device_tools(registry, manager) -> None:
         device_id = args.get("device_id", "")
         try:
             api = manager.get_device(device_id)
-            success = api.test_connection()
+            success = await api.test_connection()
             return FortiGateFormatters.format_connection_test(device_id, success)
         except Exception as e:
             return FortiGateFormatters.format_connection_test(device_id, False, str(e))
@@ -102,7 +102,7 @@ def register_device_tools(registry, manager) -> None:
         device_id = args.get("device_id", "")
         try:
             api = manager.get_device(device_id)
-            vdoms_data = api.get_vdoms()
+            vdoms_data = await api.get_vdoms()
             return FortiGateFormatters.format_vdoms(vdoms_data)
         except Exception as e:
             return FortiGateFormatters.format_error_response("discover_vdoms", device_id, str(e))
@@ -201,7 +201,7 @@ def register_device_tools(registry, manager) -> None:
 
     async def health_check(args: Dict[str, Any]):
         try:
-            connection_results = manager.test_all_connections()
+            connection_results = await manager.test_all_connections()
             device_count = len(manager.list_devices())
             healthy = all(connection_results.values()) if connection_results else True
             overall_status = "healthy" if healthy else "degraded"

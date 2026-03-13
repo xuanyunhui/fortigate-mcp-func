@@ -41,11 +41,11 @@ class FortiGateManager:
         del self.devices[device_id]
         logger.info("Removed device: %s", device_id)
 
-    def test_all_connections(self) -> Dict[str, bool]:
+    async def test_all_connections(self) -> Dict[str, bool]:
         results = {}
         for device_id, api in self.devices.items():
             try:
-                results[device_id] = api.test_connection()
+                results[device_id] = await api.test_connection()
             except Exception:
                 results[device_id] = False
         return results

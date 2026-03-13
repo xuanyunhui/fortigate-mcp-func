@@ -83,7 +83,7 @@ def register_network_tools(registry: ToolRegistry, manager: Any) -> None:
         device_id: str = params["device_id"]
         vdom: Optional[str] = params.get("vdom")
         device = manager.get_device(device_id)
-        data = device.get_address_objects(vdom=vdom)
+        data = await device.get_address_objects(vdom=vdom)
         return FortiGateFormatters.format_address_objects(data)
 
     async def create_address_object(params: Dict[str, Any]):
@@ -98,7 +98,7 @@ def register_network_tools(registry: ToolRegistry, manager: Any) -> None:
             "type": address_type,
             "subnet": address,
         }
-        result = device.create_address_object(address_data, vdom=vdom)
+        result = await device.create_address_object(address_data, vdom=vdom)
         return FortiGateFormatters.format_operation_result(
             "create address object", device_id, True,
             f"Address object '{name}' created successfully"
@@ -108,7 +108,7 @@ def register_network_tools(registry: ToolRegistry, manager: Any) -> None:
         device_id: str = params["device_id"]
         vdom: Optional[str] = params.get("vdom")
         device = manager.get_device(device_id)
-        data = device.get_service_objects(vdom=vdom)
+        data = await device.get_service_objects(vdom=vdom)
         return FortiGateFormatters.format_service_objects(data)
 
     async def create_service_object(params: Dict[str, Any]):
@@ -126,7 +126,7 @@ def register_network_tools(registry: ToolRegistry, manager: Any) -> None:
         }
         if port:
             service_data["port"] = port
-        result = device.create_service_object(service_data, vdom=vdom)
+        result = await device.create_service_object(service_data, vdom=vdom)
         return FortiGateFormatters.format_operation_result(
             "create service object", device_id, True,
             f"Service object '{name}' created successfully"

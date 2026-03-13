@@ -1,6 +1,6 @@
 """Tests for routing tools."""
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from function.tools.routing import register_routing_tools
 from function.tools import ToolRegistry
 
@@ -9,14 +9,14 @@ def _make_mock_manager():
     mgr = MagicMock()
     mgr.devices = {"fw01": MagicMock()}
     device = MagicMock()
-    device.get_static_routes.return_value = {"results": [{"seq-num": 1, "dst": "0.0.0.0/0", "gateway": "10.0.0.1", "device": "port1", "status": "enable"}]}
-    device.create_static_route.return_value = {"status": "success"}
-    device.update_static_route.return_value = {"status": "success"}
-    device.delete_static_route.return_value = {"status": "success"}
-    device.get_static_route_detail.return_value = {"results": [{"seq-num": 1, "dst": "0.0.0.0/0"}]}
-    device.get_routing_table.return_value = {"results": [{"dst": "10.0.0.0/8", "gateway": "10.0.0.1", "interface": "port1"}]}
-    device.get_interfaces.return_value = {"results": [{"name": "port1", "status": "up", "type": "physical", "mode": "static", "ip": "10.0.0.2"}]}
-    device.get_interface_status.return_value = {"results": [{"name": "port1"}]}
+    device.get_static_routes = AsyncMock(return_value={"results": [{"seq-num": 1, "dst": "0.0.0.0/0", "gateway": "10.0.0.1", "device": "port1", "status": "enable"}]})
+    device.create_static_route = AsyncMock(return_value={"status": "success"})
+    device.update_static_route = AsyncMock(return_value={"status": "success"})
+    device.delete_static_route = AsyncMock(return_value={"status": "success"})
+    device.get_static_route_detail = AsyncMock(return_value={"results": [{"seq-num": 1, "dst": "0.0.0.0/0"}]})
+    device.get_routing_table = AsyncMock(return_value={"results": [{"dst": "10.0.0.0/8", "gateway": "10.0.0.1", "interface": "port1"}]})
+    device.get_interfaces = AsyncMock(return_value={"results": [{"name": "port1", "status": "up", "type": "physical", "mode": "static", "ip": "10.0.0.2"}]})
+    device.get_interface_status = AsyncMock(return_value={"results": [{"name": "port1"}]})
     mgr.get_device.return_value = device
     return mgr
 

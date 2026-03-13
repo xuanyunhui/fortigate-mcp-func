@@ -146,7 +146,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_static_routes(vdom=vdom)
+            data = await api.get_static_routes(vdom=vdom)
             return FortiGateFormatters.format_static_routes(data)
         except Exception as e:
             return FortiGateFormatters.format_error_response(
@@ -178,7 +178,7 @@ def register_routing_tools(registry, manager) -> None:
             route_data: Dict[str, Any] = {"dst": dst, "gateway": gateway}
             if device:
                 route_data["device"] = device
-            api.create_static_route(route_data, vdom=vdom)
+            await api.create_static_route(route_data, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "create static route", device_id, True,
                 f"Static route to {dst} created successfully"
@@ -212,7 +212,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            api.update_static_route(route_id, route_data, vdom=vdom)
+            await api.update_static_route(route_id, route_data, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "update static route", device_id, True,
                 f"Static route {route_id} updated successfully"
@@ -244,7 +244,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            api.delete_static_route(route_id, vdom=vdom)
+            await api.delete_static_route(route_id, vdom=vdom)
             return FortiGateFormatters.format_operation_result(
                 "delete static route", device_id, True,
                 f"Static route {route_id} deleted successfully"
@@ -275,7 +275,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_static_route_detail(route_id, vdom=vdom)
+            data = await api.get_static_route_detail(route_id, vdom=vdom)
             return FortiGateFormatters.format_json_response(data, "Static Route Detail")
         except Exception as e:
             return FortiGateFormatters.format_error_response(
@@ -302,7 +302,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_routing_table(vdom=vdom)
+            data = await api.get_routing_table(vdom=vdom)
             return FortiGateFormatters.format_routing_table(data)
         except Exception as e:
             return FortiGateFormatters.format_error_response(
@@ -328,7 +328,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_interfaces(vdom=vdom)
+            data = await api.get_interfaces(vdom=vdom)
             return FortiGateFormatters.format_interfaces(data)
         except Exception as e:
             return FortiGateFormatters.format_error_response(
@@ -355,7 +355,7 @@ def register_routing_tools(registry, manager) -> None:
         vdom = args.get("vdom")
         try:
             api = manager.get_device(device_id)
-            data = api.get_interface_status(interface_name, vdom=vdom)
+            data = await api.get_interface_status(interface_name, vdom=vdom)
             return FortiGateFormatters.format_json_response(data, f"Interface Status: {interface_name}")
         except Exception as e:
             return FortiGateFormatters.format_error_response(

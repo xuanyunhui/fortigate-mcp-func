@@ -1,6 +1,6 @@
 """Tests for firewall policy tools."""
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from function.tools.firewall import register_firewall_tools
 from function.tools import ToolRegistry
 
@@ -9,13 +9,13 @@ def _make_mock_manager():
     mgr = MagicMock()
     mgr.devices = {"fw01": MagicMock()}
     device = MagicMock()
-    device.get_firewall_policies.return_value = {"results": [{"policyid": 1, "name": "test", "status": "enable", "action": "accept", "srcaddr": [], "dstaddr": [], "service": []}]}
-    device.create_firewall_policy.return_value = {"status": "success"}
-    device.update_firewall_policy.return_value = {"status": "success"}
-    device.delete_firewall_policy.return_value = {"status": "success"}
-    device.get_firewall_policy_detail.return_value = {"results": [{"policyid": 1, "name": "test", "status": "enable", "action": "accept", "srcintf": [], "dstintf": [], "srcaddr": [], "dstaddr": [], "service": []}]}
-    device.get_address_objects.return_value = {"results": []}
-    device.get_service_objects.return_value = {"results": []}
+    device.get_firewall_policies = AsyncMock(return_value={"results": [{"policyid": 1, "name": "test", "status": "enable", "action": "accept", "srcaddr": [], "dstaddr": [], "service": []}]})
+    device.create_firewall_policy = AsyncMock(return_value={"status": "success"})
+    device.update_firewall_policy = AsyncMock(return_value={"status": "success"})
+    device.delete_firewall_policy = AsyncMock(return_value={"status": "success"})
+    device.get_firewall_policy_detail = AsyncMock(return_value={"results": [{"policyid": 1, "name": "test", "status": "enable", "action": "accept", "srcintf": [], "dstintf": [], "srcaddr": [], "dstaddr": [], "service": []}]})
+    device.get_address_objects = AsyncMock(return_value={"results": []})
+    device.get_service_objects = AsyncMock(return_value={"results": []})
     mgr.get_device.return_value = device
     return mgr
 

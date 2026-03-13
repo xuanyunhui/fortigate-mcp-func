@@ -44,7 +44,7 @@ class FortiGateAPI:
                 f"Device '{device_id}' requires either api_token or username/password"
             )
 
-    def _make_request(
+    async def _make_request(
         self,
         method: str,
         path: str,
@@ -70,8 +70,8 @@ class FortiGateAPI:
             kwargs["auth"] = self._basic_auth
 
         try:
-            with httpx.Client() as client:
-                response = client.request(method, **kwargs)
+            async with httpx.AsyncClient() as client:
+                response = await client.request(method, **kwargs)
         except httpx.ConnectError as exc:
             raise FortiGateAPIError(f"Network error: {exc}") from exc
         except httpx.HTTPError as exc:
@@ -89,12 +89,12 @@ class FortiGateAPI:
     # Convenience endpoints
     # ------------------------------------------------------------------
 
-    def get_system_status(self) -> Any:
-        return self._make_request("GET", "monitor/system/status")
+    async def get_system_status(self) -> Any:
+        return await self._make_request("GET", "monitor/system/status")
 
-    def test_connection(self) -> bool:
+    async def test_connection(self) -> bool:
         try:
-            self._make_request("GET", "monitor/system/status")
+            await self._make_request("GET", "monitor/system/status")
             return True
         except FortiGateAPIError:
             return False
@@ -103,19 +103,19 @@ class FortiGateAPI:
     # System
     # ------------------------------------------------------------------
 
-    def get_system_interface(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "monitor/system/interface", vdom=vdom)
+    async def get_system_interface(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "monitor/system/interface", vdom=vdom)
 
-    def get_vdoms(self) -> Any:
-        return self._make_request("GET", "cmdb/system/vdom")
+    async def get_vdoms(self) -> Any:
+        return await self._make_request("GET", "cmdb/system/vdom")
 
-    def get_interfaces(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/system/interface", vdom=vdom)
+    async def get_interfaces(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/system/interface", vdom=vdom)
 
-    def get_interface_status(
+    async def get_interface_status(
         self, interface_name: str, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "GET",
             "monitor/system/interface",
             params={"interface": interface_name},
@@ -126,37 +126,37 @@ class FortiGateAPI:
     # Firewall policies
     # ------------------------------------------------------------------
 
-    def get_firewall_policies(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/firewall/policy", vdom=vdom)
+    async def get_firewall_policies(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/firewall/policy", vdom=vdom)
 
-    def create_firewall_policy(
+    async def create_firewall_policy(
         self, policy_data: Dict[str, Any], vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "POST", "cmdb/firewall/policy", data=policy_data, vdom=vdom
         )
 
-    def update_firewall_policy(
+    async def update_firewall_policy(
         self,
         policy_id: int,
         policy_data: Dict[str, Any],
         vdom: Optional[str] = None,
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "PUT", f"cmdb/firewall/policy/{policy_id}", data=policy_data, vdom=vdom
         )
 
-    def get_firewall_policy_detail(
+    async def get_firewall_policy_detail(
         self, policy_id: int, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "GET", f"cmdb/firewall/policy/{policy_id}", vdom=vdom
         )
 
-    def delete_firewall_policy(
+    async def delete_firewall_policy(
         self, policy_id: int, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "DELETE", f"cmdb/firewall/policy/{policy_id}", vdom=vdom
         )
 
@@ -164,33 +164,33 @@ class FortiGateAPI:
     # Address objects
     # ------------------------------------------------------------------
 
-    def get_address_objects(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/firewall/address", vdom=vdom)
+    async def get_address_objects(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/firewall/address", vdom=vdom)
 
-    def create_address_object(
+    async def create_address_object(
         self, address_data: Dict[str, Any], vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "POST", "cmdb/firewall/address", data=address_data, vdom=vdom
         )
 
-    def update_address_object(
+    async def update_address_object(
         self,
         address_name: str,
         address_data: Dict[str, Any],
         vdom: Optional[str] = None,
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "PUT",
             f"cmdb/firewall/address/{address_name}",
             data=address_data,
             vdom=vdom,
         )
 
-    def delete_address_object(
+    async def delete_address_object(
         self, address_name: str, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "DELETE", f"cmdb/firewall/address/{address_name}", vdom=vdom
         )
 
@@ -198,33 +198,33 @@ class FortiGateAPI:
     # Service objects
     # ------------------------------------------------------------------
 
-    def get_service_objects(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/firewall.service/custom", vdom=vdom)
+    async def get_service_objects(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/firewall.service/custom", vdom=vdom)
 
-    def create_service_object(
+    async def create_service_object(
         self, service_data: Dict[str, Any], vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "POST", "cmdb/firewall.service/custom", data=service_data, vdom=vdom
         )
 
-    def update_service_object(
+    async def update_service_object(
         self,
         service_name: str,
         service_data: Dict[str, Any],
         vdom: Optional[str] = None,
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "PUT",
             f"cmdb/firewall.service/custom/{service_name}",
             data=service_data,
             vdom=vdom,
         )
 
-    def delete_service_object(
+    async def delete_service_object(
         self, service_name: str, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "DELETE", f"cmdb/firewall.service/custom/{service_name}", vdom=vdom
         )
 
@@ -232,77 +232,77 @@ class FortiGateAPI:
     # Static routes
     # ------------------------------------------------------------------
 
-    def get_static_routes(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/router/static", vdom=vdom)
+    async def get_static_routes(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/router/static", vdom=vdom)
 
-    def create_static_route(
+    async def create_static_route(
         self, route_data: Dict[str, Any], vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "POST", "cmdb/router/static", data=route_data, vdom=vdom
         )
 
-    def update_static_route(
+    async def update_static_route(
         self,
         route_id: int,
         route_data: Dict[str, Any],
         vdom: Optional[str] = None,
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "PUT", f"cmdb/router/static/{route_id}", data=route_data, vdom=vdom
         )
 
-    def delete_static_route(
+    async def delete_static_route(
         self, route_id: int, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "DELETE", f"cmdb/router/static/{route_id}", vdom=vdom
         )
 
-    def get_static_route_detail(
+    async def get_static_route_detail(
         self, route_id: int, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "GET", f"cmdb/router/static/{route_id}", vdom=vdom
         )
 
-    def get_routing_table(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "monitor/router/ipv4", vdom=vdom)
+    async def get_routing_table(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "monitor/router/ipv4", vdom=vdom)
 
     # ------------------------------------------------------------------
     # Virtual IPs
     # ------------------------------------------------------------------
 
-    def get_virtual_ips(self, vdom: Optional[str] = None) -> Any:
-        return self._make_request("GET", "cmdb/firewall/vip", vdom=vdom)
+    async def get_virtual_ips(self, vdom: Optional[str] = None) -> Any:
+        return await self._make_request("GET", "cmdb/firewall/vip", vdom=vdom)
 
-    def create_virtual_ip(
+    async def create_virtual_ip(
         self, vip_data: Dict[str, Any], vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "POST", "cmdb/firewall/vip", data=vip_data, vdom=vdom
         )
 
-    def update_virtual_ip(
+    async def update_virtual_ip(
         self,
         vip_name: str,
         vip_data: Dict[str, Any],
         vdom: Optional[str] = None,
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "PUT", f"cmdb/firewall/vip/{vip_name}", data=vip_data, vdom=vdom
         )
 
-    def delete_virtual_ip(
+    async def delete_virtual_ip(
         self, vip_name: str, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "DELETE", f"cmdb/firewall/vip/{vip_name}", vdom=vdom
         )
 
-    def get_virtual_ip_detail(
+    async def get_virtual_ip_detail(
         self, vip_name: str, vdom: Optional[str] = None
     ) -> Any:
-        return self._make_request(
+        return await self._make_request(
             "GET", f"cmdb/firewall/vip/{vip_name}", vdom=vdom
         )

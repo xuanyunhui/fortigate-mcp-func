@@ -1,6 +1,6 @@
 """Tests for virtual IP tools."""
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from function.tools.virtual_ip import register_virtual_ip_tools
 from function.tools import ToolRegistry
 
@@ -9,11 +9,11 @@ def _make_mock_manager():
     mgr = MagicMock()
     mgr.devices = {"fw01": MagicMock()}
     device = MagicMock()
-    device.get_virtual_ips.return_value = {"results": [{"name": "vip1", "extip": "1.2.3.4", "mappedip": [{"range": "10.0.0.1"}], "extintf": "port1"}]}
-    device.create_virtual_ip.return_value = {"status": "success"}
-    device.update_virtual_ip.return_value = {"status": "success"}
-    device.delete_virtual_ip.return_value = {"status": "success"}
-    device.get_virtual_ip_detail.return_value = {"results": [{"name": "vip1", "extip": "1.2.3.4"}]}
+    device.get_virtual_ips = AsyncMock(return_value={"results": [{"name": "vip1", "extip": "1.2.3.4", "mappedip": [{"range": "10.0.0.1"}], "extintf": "port1"}]})
+    device.create_virtual_ip = AsyncMock(return_value={"status": "success"})
+    device.update_virtual_ip = AsyncMock(return_value={"status": "success"})
+    device.delete_virtual_ip = AsyncMock(return_value={"status": "success"})
+    device.get_virtual_ip_detail = AsyncMock(return_value={"results": [{"name": "vip1", "extip": "1.2.3.4"}]})
     mgr.get_device.return_value = device
     return mgr
 

@@ -1,6 +1,6 @@
 """Tests for device management tools."""
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from function.tools.device import register_device_tools
 from function.tools import ToolRegistry
 
@@ -11,10 +11,11 @@ def _make_mock_manager(device_ids=None):
     mgr.list_devices.return_value = ids
     mgr.devices = {did: MagicMock() for did in ids}
     device = MagicMock()
-    device.get_system_status.return_value = {"results": {"hostname": "fw01"}}
-    device.test_connection.return_value = True
-    device.get_vdoms.return_value = {"results": [{"name": "root"}]}
+    device.get_system_status = AsyncMock(return_value={"results": {"hostname": "fw01"}})
+    device.test_connection = AsyncMock(return_value=True)
+    device.get_vdoms = AsyncMock(return_value={"results": [{"name": "root"}]})
     mgr.get_device.return_value = device
+    mgr.test_all_connections = AsyncMock(return_value={did: True for did in ids})
     return mgr
 
 
@@ -92,7 +93,6 @@ class TestHealthCheck:
     async def test_returns_status(self):
         reg = ToolRegistry()
         mgr = _make_mock_manager()
-        mgr.test_all_connections.return_value = {"fw01": True}
         register_device_tools(reg, mgr)
         result = await reg.get("health_check")({})
         assert len(result) >= 1

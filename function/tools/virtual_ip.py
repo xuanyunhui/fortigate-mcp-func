@@ -12,7 +12,7 @@ def register_virtual_ip_tools(registry: ToolRegistry, manager) -> None:
         device_id = params["device_id"]
         vdom = params.get("vdom")
         api = manager.get_device(device_id)
-        data = api.get_virtual_ips(vdom=vdom)
+        data = await api.get_virtual_ips(vdom=vdom)
         return FortiGateFormatters.format_virtual_ips(data)
 
     registry.register(
@@ -60,7 +60,7 @@ def register_virtual_ip_tools(registry: ToolRegistry, manager) -> None:
             vip_data["mappedport"] = mappedport
 
         api = manager.get_device(device_id)
-        api.create_virtual_ip(vip_data, vdom=vdom)
+        await api.create_virtual_ip(vip_data, vdom=vdom)
         return FortiGateFormatters.format_operation_result(
             "create virtual IP", device_id, True, f"Virtual IP '{name}' created successfully"
         )
@@ -94,7 +94,7 @@ def register_virtual_ip_tools(registry: ToolRegistry, manager) -> None:
         vdom = params.get("vdom")
 
         api = manager.get_device(device_id)
-        api.update_virtual_ip(name, vip_data, vdom=vdom)
+        await api.update_virtual_ip(name, vip_data, vdom=vdom)
         return FortiGateFormatters.format_operation_result(
             "update virtual IP", device_id, True, f"Virtual IP '{name}' updated successfully"
         )
@@ -121,7 +121,7 @@ def register_virtual_ip_tools(registry: ToolRegistry, manager) -> None:
         vdom = params.get("vdom")
 
         api = manager.get_device(device_id)
-        data = api.get_virtual_ip_detail(name, vdom=vdom)
+        data = await api.get_virtual_ip_detail(name, vdom=vdom)
         return FortiGateFormatters.format_virtual_ip_detail(data)
 
     registry.register(
@@ -145,7 +145,7 @@ def register_virtual_ip_tools(registry: ToolRegistry, manager) -> None:
         vdom = params.get("vdom")
 
         api = manager.get_device(device_id)
-        api.delete_virtual_ip(name, vdom=vdom)
+        await api.delete_virtual_ip(name, vdom=vdom)
         return FortiGateFormatters.format_operation_result(
             "delete virtual IP", device_id, True, f"Virtual IP '{name}' deleted successfully"
         )

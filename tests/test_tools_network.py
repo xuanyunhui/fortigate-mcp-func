@@ -1,6 +1,6 @@
 """Tests for network object tools."""
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from function.tools.network import register_network_tools
 from function.tools import ToolRegistry
 
@@ -9,10 +9,10 @@ def _make_mock_manager():
     mgr = MagicMock()
     mgr.devices = {"fw01": MagicMock()}
     device = MagicMock()
-    device.get_address_objects.return_value = {"results": [{"name": "addr1", "type": "ipmask", "subnet": "10.0.0.0/8"}]}
-    device.create_address_object.return_value = {"status": "success"}
-    device.get_service_objects.return_value = {"results": [{"name": "svc1", "protocol": "TCP", "tcp-portrange": "80"}]}
-    device.create_service_object.return_value = {"status": "success"}
+    device.get_address_objects = AsyncMock(return_value={"results": [{"name": "addr1", "type": "ipmask", "subnet": "10.0.0.0/8"}]})
+    device.create_address_object = AsyncMock(return_value={"status": "success"})
+    device.get_service_objects = AsyncMock(return_value={"results": [{"name": "svc1", "protocol": "TCP", "tcp-portrange": "80"}]})
+    device.create_service_object = AsyncMock(return_value={"status": "success"})
     mgr.get_device.return_value = device
     return mgr
 
